@@ -22,7 +22,11 @@ export const RepoConnector: React.FC<RepoConnectorProps> = ({ onConnect, isLoadi
                 {/* FIX: Replaced inline style with a Tailwind arbitrary property to resolve prop type error. The 'style' prop is not defined on IconProps. */}
                 <BrainIcon className="w-20 h-20 text-[var(--accent)] mx-auto mb-4 [filter:drop-shadow(0_0_15px_var(--accent-glow))]"/>
                 <h1 className="text-5xl font-extrabold tracking-tighter text-white">Nexus Codex Engine</h1>
-                <p className="text-[var(--text-secondary)] mt-2">Conecte um repositório para iniciar a engenharia de software assistida por IA.</p>
+                <p className="text-[var(--text-secondary)] mt-4 max-w-2xl mx-auto text-lg leading-relaxed">
+                    Interface híbrida de alta performance para modelos Gemini e GitHub com grounding em tempo real.
+                    <br/>
+                    <span className="text-[var(--accent)] font-medium">O app é um orquestrador de agents para edição e criação de código direto no repositório do GitHub.</span>
+                </p>
             </div>
             <form onSubmit={handleSubmit} className="w-full max-w-xl animate-fade-in-up" style={{animationDelay: '200ms'}}>
                 <div className="relative group">

@@ -1,5 +1,5 @@
 {
   "name": "CODEX HUB",
-  "description": "Interface híbrida de alta performance para modelos Gemini e GitHub com grounding em tempo real.",
+  "description": "Interface híbrida de alta performance para modelos Gemini e GitHub com grounding em tempo real. O app é um orquestrador de agents para edição e criação de código direto no repositório do GitHub.",
   "requestFramePermissions": []
 }
