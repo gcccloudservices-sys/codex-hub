@@ -10,6 +10,7 @@ const categoryColorMap: Record<string, string> = {
     'File System': 'bg-sky-500',      // Leitura/Escrita de arquivos
     'Development': 'bg-emerald-500',  // Geração de código
     'Code Quality': 'bg-amber-500',   // Revisão e crítica
+    'DevOps & CLI': 'bg-neutral-100', // Vercel/System Ops (White/Black)
     
     // Cores Legadas (mantidas como fallback)
     'Planejamento': 'bg-violet-500',

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Agent } from '../types';
 
@@ -199,6 +200,9 @@ export const EngramIcon = ({ className }: IconProps) => (
 );
 export const RefreshIcon = ({ className }: IconProps) => (
   <svg {...iconProps} className={cn(iconProps.className, className)}><path d="M21.5 2v6h-6M21.34 5.5A10 10 0 1 0 22 12"/></svg>
+);
+export const VercelIcon = ({ className }: IconProps) => (
+    <svg {...iconProps} className={cn(iconProps.className, className)} viewBox="0 0 24 24" fill="currentColor"><path d="M24 22.525H0l12-21.05 12 21.05z" /></svg>
 );
 
 // --- Novos ícones para Notificações e Agendamento ---

@@ -1,6 +1,6 @@
 
 import { Agent, AgentStatusInfo, LogEntry, TaskStatus, Task } from '../types';
-import { BrainIcon, ConsoleIcon, ExternalLinkIcon, SearchIcon, EyeIcon } from './Icons';
+import { BrainIcon, ConsoleIcon, ExternalLinkIcon, SearchIcon, EyeIcon, ShieldIcon } from './Icons';
 import React, { useEffect, useRef } from 'react';
 import { getAgentColor } from '../utils/colorUtils';
 
@@ -16,15 +16,34 @@ const SystemTerminal: React.FC<{ logs: LogEntry[], allAgents: Agent[] }> = ({ lo
             <div className="flex-grow overflow-y-auto custom-scrollbar p-3 space-y-1 relative z-10">
                 {logs.map((log) => {
                     const agent = log.agentId ? allAgents.find(a => a.id === log.agentId) : null;
-                    const agentColorClass = agent ? getAgentColor(agent).replace('bg-', 'border-') : 'border-slate-700';
                     const agentName = agent ? agent.name : 'System';
 
+                    // Determine styles based on log type
+                    let textColor = 'text-slate-300';
+                    let borderColorClass = agent ? getAgentColor(agent).replace('bg-', 'border-') : 'border-slate-700';
+                    let bgClass = '';
+                    let IconComponent = null;
+
+                    if (log.type === 'error') {
+                        textColor = 'text-rose-400';
+                    } else if (log.type === 'success') {
+                        textColor = 'text-emerald-400';
+                    } else if (log.type === 'security') {
+                        textColor = 'text-amber-400 font-bold';
+                        borderColorClass = 'border-amber-500'; // Override agent border
+                        bgClass = 'bg-amber-900/10 rounded-r-sm'; // Highlight background
+                        IconComponent = ShieldIcon;
+                    } else if (log.type === 'api') {
+                        textColor = 'text-cyan-300/80';
+                    }
+
                     return (
-                        <div key={log.id} className={`flex gap-2 items-start pl-2 border-l-2 ${agentColorClass}`}>
-                            <span className="text-slate-600 shrink-0 select-none w-16 text-right opacity-70">{log.timestamp}</span>
-                            <div className="flex-grow">
+                        <div key={log.id} className={`flex gap-2 items-start pl-2 border-l-2 ${borderColorClass} ${bgClass} transition-colors duration-300`}>
+                            <span className="text-slate-600 shrink-0 select-none w-16 text-right opacity-70 py-0.5">{log.timestamp}</span>
+                            <div className="flex-grow py-0.5">
                                 <span className="font-bold text-slate-500 mr-2">[{agentName}]</span>
-                                <span className={`break-words leading-relaxed ${log.type === 'error' ? 'text-rose-400' : log.type === 'success' ? 'text-emerald-400' : 'text-slate-300'}`}>
+                                <span className={`break-words leading-relaxed ${textColor} flex items-center gap-1.5`}>
+                                    {IconComponent && <IconComponent className="w-3 h-3 inline-block shrink-0" />}
                                     {log.message}
                                 </span>
                                 {(log.commitUrl || log.pullRequestUrl) && (

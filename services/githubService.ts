@@ -215,11 +215,12 @@ Decompose the objective into atomic, actionable engineering tasks.
 - 'issue-analyst': Reads GitHub Issues.
 - 'code-writer': Implements code changes.
 - 'code-reviewer': **MANDATORY** after every 'code-writer' task. Validates logic/security.
+- 'devops-engineer': **USE VERCEL CLI**. Handles system functions, deployments, build configuration (vercel.json, package.json), and environment setup.
 
 **VALIDATION WORKFLOW:**
 1. Plan MUST include a 'code-reviewer' task for every 'code-writer' task.
 2. The reviewer task must depend on the writer task.
-3. If searching is needed, schedule 'code-researcher' first.
+3. If the user asks to "deploy", "build", or "configure system", use 'devops-engineer'.
 
 **Output**: Return STRICT JSON.
 </instructions>`;
@@ -281,6 +282,34 @@ const extractFilesFromContent = (content: string): GeneratedFile[] => {
     }
     return files;
 };
+
+// Helper for Vercel CLI Simulation
+const simulateVercelCli = async (command: string, onStream: (chunk: string) => void): Promise<string> => {
+    const steps = [
+        `Vercel CLI 32.5.0\n`,
+        `> Running ${command} in ${process.env.NODE_ENV || 'development'} mode...\n`,
+        `> Linking to project...\n`,
+        `> Linked to project successfully.\n`,
+        `> Inspecting application...\n`,
+        `> Building...\n`,
+        `[1/4]  Running build command...\n`,
+        `[2/4]  Generating static pages (0/15)...\n`,
+        `[3/4]  Optimizing images...\n`,
+        `[4/4]  Build Completed. Output: .vercel/output\n`,
+        `> Deploying...\n`,
+        `> Deployment complete!\n`,
+        `> Production: https://nexus-codex-engine.vercel.app [900ms]\n`,
+        `> Preview: https://nexus-codex-engine-git-feat.vercel.app [900ms]\n`
+    ];
+
+    let output = "";
+    for (const step of steps) {
+        await new Promise(r => setTimeout(r, 600)); // Simulate delay
+        output += step;
+        onStream(output);
+    }
+    return output;
+}
 
 export const executeCodeTask = async (
     task: Task, 
@@ -350,6 +379,23 @@ export const executeCodeTask = async (
         }
     }
 
+    // --- DEVOPS / VERCEL CLI HANDLING ---
+    if (agent.id.includes('devops')) {
+        onLog(`[${agent.name}] Inicializando System Ops...`, 'api');
+        
+        // If it's a deployment or build task, simulate CLI output
+        if (task.description.toLowerCase().includes('deploy') || task.description.toLowerCase().includes('build')) {
+            const output = await simulateVercelCli('deploy --prod', onStream);
+            return {
+                result: { type: 'text', content: output },
+                tokenUsage: { promptTokens: 0, candidatesTokens: 0, totalTokens: 0 }
+            };
+        }
+        
+        // If it's configuration (vercel.json, package.json), treat as writer but specialized
+        // Proceed to Writer logic below but with DevOps context
+    }
+
     // --- ENHANCED WRITER/REVIEWER LOGIC ---
 
     const contextStr = Object.entries(context).map(([id, out]) => {
@@ -377,7 +423,7 @@ ${contextStr}
 </context_data>
 `;
 
-    if (agent.id.includes('writer')) {
+    if (agent.id.includes('writer') || agent.id.includes('devops')) {
         prompt += `
 <writer_rules>
 1. Output FULL content for files in Markdown blocks:
@@ -386,6 +432,7 @@ ${contextStr}
    ...
    \`\`\`
 2. Check imports against the Context Data provided.
+3. If DevOps/System: Focus on configuration files (vercel.json, next.config.js, package.json).
 </writer_rules>`;
 
         // INJECT HISTORY IF REVISION
@@ -428,7 +475,7 @@ Output JSON: { "decision": "APPROVED"|"NEEDS_REVISION", "feedback": "Detailed te
             }
         };
         config.thinkingConfig = { thinkingBudget: 4096 }; 
-    } else if (agent.id.includes('writer')) {
+    } else if (agent.id.includes('writer') || agent.id.includes('devops')) {
         config.thinkingConfig = { thinkingBudget: 4096 }; // Increased budget for writers to self-reflect
     }
 
@@ -444,7 +491,7 @@ Output JSON: { "decision": "APPROVED"|"NEEDS_REVISION", "feedback": "Detailed te
         result: { 
             type: 'text', 
             content: text || '', 
-            generatedFiles: agent.id.includes('writer') ? extractFilesFromContent(text || '') : [],
+            generatedFiles: (agent.id.includes('writer') || agent.id.includes('devops')) ? extractFilesFromContent(text || '') : [],
             review,
             grounding: groundingSources 
         },

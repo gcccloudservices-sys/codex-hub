@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Agent, AgentStatusInfo, Task, TaskStatus } from '../types';
 import { getAgentColor } from '../utils/colorUtils';
-import { CheckIcon, CodeIcon, EyeIcon, RetryIcon, SpinnerIcon, StopIcon, WriterIcon } from './Icons';
+import { CheckIcon, CodeIcon, EyeIcon, RetryIcon, SpinnerIcon, StopIcon, WriterIcon, VercelIcon } from './Icons';
 
 interface MissionControlViewProps {
   objective: string;
@@ -44,6 +44,7 @@ const TaskNode: React.FC<{
         if (agentId.includes('reader')) return <EyeIcon className="w-3 h-3"/>;
         if (agentId.includes('writer')) return <CodeIcon className="w-3 h-3" />;
         if (agentId.includes('reviewer')) return <WriterIcon className="w-3 h-3"/>;
+        if (agentId.includes('devops')) return <VercelIcon className="w-3 h-3"/>;
         return <div className="w-2 h-2 rounded-full bg-current" />;
     }
 
