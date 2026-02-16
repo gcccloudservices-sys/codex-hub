@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF---8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Codex Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+      :root {
+        --background: #010411;
+        --surface-primary: rgba(13, 16, 36, 0.5);
+        --surface-secondary: rgba(20, 24, 50, 0.5);
+        --border-color: rgba(129, 236, 255, 0.1);
+        --border-color-hover: rgba(129, 236, 255, 0.3);
+        --accent: #00F2FF;
+        --accent-glow: rgba(0, 242, 255, 0.2);
+        --text-primary: #E5E7EB;
+        --text-secondary: #9CA3AF;
+        --text-tertiary: #4B5563;
+      }
+
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--background);
+        color: var(--text-primary);
+        overflow: hidden;
+      }
+
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(0, 242, 255, 0.1); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(0, 242, 255, 0.3); }
+
+      /* Codex Background - NEW NEBULA EFFECT */
+      .codex-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--background);
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .codex-bg::before, .codex-bg::after {
+        content: "";
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        background-image: radial-gradient(circle, var(--accent) 0%, transparent 60%);
+        border-radius: 50%;
+        opacity: 0.05;
+        animation: aurora-glow 25s infinite ease-in-out;
+        will-change: transform, opacity;
+      }
+
+      .codex-bg::before {
+        top: -30%;
+        left: -30%;
+      }
+
+      .codex-bg::after {
+        bottom: -30%;
+        right: -30%;
+        animation-delay: -12.5s;
+      }
+      
+      @keyframes aurora-glow {
+        0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.05; }
+        50% { transform: translate(100px, 50px) scale(1.3); opacity: 0.08; }
+      }
+
+      /* Glass Panels - REFINED STYLE */
+      .glass-panel {
+        background-color: var(--surface-primary);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid transparent;
+        background-clip: padding-box;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        position: relative;
+      }
+      .glass-panel::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        z-index: -1;
+        margin: -1px;
+        border-radius: inherit;
+        background: linear-gradient(120deg, rgba(0, 242, 255, 0.1), rgba(0, 242, 255, 0.05), rgba(0, 242, 255, 0.1));
+      }
+      
+      /* Animations & Effects */
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+      .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+      
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up { animation: fade-in-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+      @keyframes breath-glow {
+        0%, 100% { box-shadow: 0 0 15px var(--accent-glow); }
+        50% { box-shadow: 0 0 25px var(--accent-glow), 0 0 10px var(--accent-glow) inset; }
+      }
+      .animate-breath-glow {
+        animation: breath-glow 3s infinite ease-in-out;
+      }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link id="hljs-dark-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/material-darker.min.css" disabled>
+    <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@latest",
+    "@e2b/code-interpreter": "https://esm.sh/@e2b/code-interpreter@^2.3.3",
+    "@radix-ui/react-avatar": "https://esm.sh/@radix-ui/react-avatar@^1.1.11",
+    "@radix-ui/react-dialog": "https://esm.sh/@radix-ui/react-dialog@^1.1.15",
+    "@radix-ui/react-dropdown-menu": "https://esm.sh/@radix-ui/react-dropdown-menu@^2.1.16",
+    "@radix-ui/react-icons": "https://esm.sh/@radix-ui/react-icons@^1.3.2",
+    "@radix-ui/react-label": "https://esm.sh/@radix-ui/react-label@^2.1.8",
+    "@radix-ui/react-select": "https://esm.sh/@radix-ui/react-select@^2.2.6",
+    "@radix-ui/react-separator": "https://esm.sh/@radix-ui/react-separator@^1.1.8",
+    "@radix-ui/react-slot": "https://esm.sh/@radix-ui/react-slot@^1.2.4",
+    "@radix-ui/react-switch": "https://esm.sh/@radix-ui/react-switch@^1.2.6",
+    "@radix-ui/react-tabs": "https://esm.sh/@radix-ui/react-tabs@^1.1.13",
+    "@radix-ui/react-toast": "https://esm.sh/@radix-ui/react-toast@^1.2.15",
+    "@radix-ui/react-tooltip": "https://esm.sh/@radix-ui/react-tooltip@^1.2.8",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.95.2",
+    "@upstash/ratelimit": "https://esm.sh/@upstash/ratelimit@^2.0.8",
+    "@vercel/analytics/": "https://esm.sh/@vercel/analytics@^1.6.1/",
+    "@vercel/kv": "https://esm.sh/@vercel/kv@^3.0.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "ai": "https://esm.sh/ai@^6.0.73",
+    "ai/": "https://esm.sh/ai@^6.0.73/",
+    "class-variance-authority": "https://esm.sh/class-variance-authority@^0.7.1",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "dotenv/": "https://esm.sh/dotenv@^17.2.4/",
+    "docx": "https://esm.sh/docx@8.5.0",
+    "e2b": "https://esm.sh/e2b@^2.12.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "nanoid": "https://esm.sh/nanoid@^5.1.6",
+    "next": "https://esm.sh/next@^16.1.6",
+    "next-themes": "https://esm.sh/next-themes@^0.4.6",
+    "next-themes/": "https://esm.sh/next-themes@^0.4.6/",
+    "next/": "https://esm.sh/next@^16.1.6/",
+    "posthog-js": "https://esm.sh/posthog-js@^1.342.0",
+    "posthog-js/": "https://esm.sh/posthog-js@^1.342.0/",
+    "prismjs": "https://esm.sh/prismjs@^1.30.0",
+    "prismjs/": "https://esm.sh/prismjs@^1.30.0/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.1",
+    "simple-icons": "https://esm.sh/simple-icons@^16.7.0",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
+    "tailwindcss": "https://esm.sh/tailwindcss@^4.1.18",
+    "usehooks-ts": "https://esm.sh/usehooks-ts@^3.1.1",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "zod": "https://esm.sh/zod@^4.3.6"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="selection:bg-cyan-500/30">
+    <div class="codex-bg"></div>
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

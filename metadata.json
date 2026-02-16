@@ -1,0 +1,5 @@
+{
+  "name": "CODEX HUB",
+  "description": "Interface híbrida de alta performance para modelos Gemini e GitHub com grounding em tempo real.",
+  "requestFramePermissions": []
+}
